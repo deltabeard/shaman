@@ -19,16 +19,17 @@
 \*******************************************************************/
 
 // Libraries //
+#include <errno.h>
+#include <fcntl.h>
+#include <getopt.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <getopt.h>
-#include <errno.h>
-#include <time.h>
 #include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
 #include <sys/types.h>
+#include <time.h>
+#include <unistd.h>
+
 #include "weather.h"
 #include "usage.h"
 
@@ -39,10 +40,6 @@
  */
 #define OWMAPIKEY "83a3a133bc7541a6608536d490f7a11d"
 
-// Forward Declarations //
-char *
-locate_cache (char scale);
-
 // Main Function //
 signed
 main (signed argc, char * argv []) {
@@ -50,8 +47,7 @@ main (signed argc, char * argv []) {
     char flag_scale   = 'i',  flag_refresh = 0,
          flag_verbose = 0,    flag_quiet   = 0;
 
-    char * format     = NULL, * location   = NULL,
-         * cache_path = NULL;
+    char * format     = NULL, * location   = NULL;
 
     if ( argc <= 1 ) {
         _usage(1);
@@ -65,14 +61,13 @@ main (signed argc, char * argv []) {
             { "verbose",  no_argument,       0, 'v' },
             { "quiet",    no_argument,       0, 'q' },
             /* Swtiches */
-            { "cache",    required_argument, 0, 'c' },
             { "format",   required_argument, 0, 'f' },
             { "location", required_argument, 0, 'l' },
             { 0,          0,                 0, 0   },
         };
 
         for ( signed c = 0, oi = 0; c != -1;
-              c = getopt_long(argc, argv, "himrvqc:f:l:", os, &oi) ) {
+              c = getopt_long(argc, argv, "himrvq:f:l:", os, &oi) ) {
 
             unsigned long optarg_len;
 
@@ -94,12 +89,6 @@ main (signed argc, char * argv []) {
 
                 case 'q':
                     flag_quiet ++; break;
-
-                case 'c':
-                    optarg_len = strlen(optarg) + 1;
-                    cache_path = malloc(optarg_len);
-                    strncpy(cache_path, optarg, optarg_len);
-                    break;
 
                 case 'f':
                     optarg_len = strlen(optarg) + 1;
@@ -123,23 +112,10 @@ main (signed argc, char * argv []) {
 
     if ( !location ) { _usage(1); }
 
-    if ( !cache_path ) { cache_path = locate_cache(flag_scale); }
-
-    signed fd = 0;
-    if ( (fd = open(cache_path, O_CREAT, 0666)) == -1 ) {
-        int errsv = errno;
-        fprintf(stderr, "shaman: %s\n", strerror(errsv));
-        if ( cache_path ) { free(cache_path); }
-        if ( location )   { free(location);   }
-        if ( format )     { free(format);     }
-        return 1;
-    } close(fd);
-
-    struct weather * wthr = owm_easy('q', location, flag_scale, cache_path,
+    struct weather * wthr = owm_easy('q', location, flag_scale, NULL,
                                      flag_refresh ? 0 : 600, OWMAPIKEY,
                                      flag_verbose);
 
-    if ( cache_path ) { free(cache_path); }
     if ( location )   { free(location);   }
 
     char output_string [BUFFER_SIZE];
@@ -152,42 +128,6 @@ main (signed argc, char * argv []) {
     } else {
         printf("%s\n", output_string);
     } return 0;
-}
-
-char *
-locate_cache (char scale) {
-
-    char * cache_path;
-    char * conf_prefix = getenv("XDG_CONFIG_HOME");
-
-    char location = conf_prefix ? 'x' : 'h';
-    if ( location == 'h' ) { conf_prefix = getenv("HOME"); };
-
-    size_t conf_prefix_len = strlen(conf_prefix);
-    char * conf_dir = malloc(conf_prefix_len + 10);
-
-    snprintf(conf_dir, conf_prefix_len + 9, "%s/%s", conf_prefix,
-             (location == 'x' ? "shaman" : ".shaman"));
-    signed error = mkdir(conf_dir,
-                         S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-                         // mode == 0755
-
-    if ( error && errno != EEXIST ) {
-        fprintf(stderr, "Error checking cache at %s: %s\n", conf_dir,
-                strerror(errno));
-
-        free(conf_dir);
-        exit(1);
-    } else {
-        size_t conf_dir_len = strlen(conf_dir);
-        cache_path = malloc(conf_dir_len + 16);
-        snprintf(cache_path, conf_dir_len + 15,
-                 (scale == 'i' ? "%s/imperial.json" : "%s/metric.json"),
-                 conf_dir);
-    }
-
-    free(conf_dir);
-    return cache_path;
 }
 
 // vim: set ts=4 sw=4 et:

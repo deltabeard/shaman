@@ -40,7 +40,6 @@ _usage (signed error) {
           "  -q, --quiet\t\t\tsilence all output\n"
           "  -r, --refresh\t\t\tforce update of local cache\n"
           "  -v, --verbose\t\t\toutput more status information\n"
-          "  -c, --cache\t\t\tspecify location of local cache\n"
           "  -f, --format=\"format\"\t\tformat output according to \"format\"\n"
           "  -l, --location=\"location\"\tprint weather information for "
           "\"location\"\n\n"
