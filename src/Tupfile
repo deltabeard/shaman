@@ -1,6 +1,0 @@
-include_rules
-
-: ../configure.sh |> ./%f |>
-: weather.c |> $(CC) $(CFLAGS) -Wno-disabled-macro-expansion -fPIC -c %f -shared -o %o |> ../dist/lib%B.so
-: weather.h |> cp %f %o |> ../dist/weather.h
-: shaman.c | ../dist/libweather.so |> $(CC) $(CFLAGS) $(LDFLAGS) -fPIE -pie -L../dist -lweather %f -o %o |> ../dist/shaman
