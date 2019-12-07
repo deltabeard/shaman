@@ -1,4 +1,4 @@
-LDLIBS ?= -lcurl -ljansson
+LDLIBS ?= -lcurl -ljansson -lm
 CFLAGS ?= -O2 -s
 
 # Required CFLAGS
