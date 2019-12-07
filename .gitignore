@@ -1,0 +1,5 @@
+shaman
+shaman-test
+*.exe
+*.o
+tags
