@@ -165,7 +165,7 @@ test_strfweather (void) {
 bool
 test_owm_local_fetch (void) {
 
-    json = owm_fetch_local("test.json");
+    json = owm_fetch_local("./test/test.json");
     return (*json->data);
 }
 

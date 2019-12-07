@@ -19,6 +19,7 @@
 \*******************************************************************/
 
 // Libraries //
+#include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
@@ -79,6 +80,7 @@ owm_fetch_local (const char * json_file_path) {
     written_result.position = 0;
 
     FILE * json_fp = fopen(json_file_path, "r");
+    assert(json_fp != NULL);
 
     fread(written_result.data, BUFFER_SIZE, 1, json_fp);
 
