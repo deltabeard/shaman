@@ -4,7 +4,7 @@ CFLAGS ?= -O2 -s
 # Required CFLAGS
 CFLAGS += -Wall -Wextra -std=c99 -pedantic
 
-all: shaman test
+all: shaman shaman-test
 shaman: src/shaman.c src/weather.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS) 
 shaman-test: test/suite.c src/weather.o
