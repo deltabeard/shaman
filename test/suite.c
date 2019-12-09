@@ -28,13 +28,9 @@
 #include "../src/weather.h"
 
 // Forward Declarations //
-
-/**
- * If you fork this code, please DO NOT use this key.
- * Getting an API key with OWM is free, but this key is exclusively
- * for shaman
- */
-#define OWMAPIKEY "83a3a133bc7541a6608536d490f7a11d"
+#ifndef OWMAPIKEY
+#error "No API key defined for Openweathermap. Get one at openweathermap.org/api and define OWMAPIKEY."
+#endif
 
 typedef bool (* test_p) (void);
 
